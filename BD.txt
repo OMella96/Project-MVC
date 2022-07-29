@@ -1,0 +1,484 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema PruebaOM
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema PruebaOM
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `PruebaOM` DEFAULT CHARACTER SET utf8 ;
+USE `PruebaOM` ;
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`editorial`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`editorial` (
+  `id_editorial` VARCHAR(45) NOT NULL,
+  `detalle` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_editorial`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`estado`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`estado` (
+  `tipo_estado` INT NOT NULL,
+  `detalle` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`tipo_estado`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`libro`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`libro` (
+  `id_libro` INT NOT NULL,
+  `isbn` VARCHAR(45) NOT NULL,
+  `titulo` VARCHAR(45) NOT NULL,
+  `numero_paginas` INT NOT NULL,
+  `precio` INT NOT NULL,
+  `ano` INT NULL,
+  `idioma` VARCHAR(45) NOT NULL,
+  `publicacion` VARCHAR(45) NULL,
+  `autores` VARCHAR(45) NOT NULL,
+  `categorias` VARCHAR(45) NOT NULL,
+  `editorial_id_editorial` VARCHAR(45) NOT NULL,
+  `estado_tipo_estado` INT NOT NULL,
+  PRIMARY KEY (`id_libro`),
+  CONSTRAINT `fk_libro_editorial1`
+    FOREIGN KEY (`editorial_id_editorial`)
+    REFERENCES `PruebaOM`.`editorial` (`id_editorial`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_libro_estado1`
+    FOREIGN KEY (`estado_tipo_estado`)
+    REFERENCES `PruebaOM`.`estado` (`tipo_estado`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`telefono`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`telefono` (
+  `fono` INT NOT NULL,
+  PRIMARY KEY (`fono`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`Region`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`Region` (
+  `idRegion` INT NOT NULL,
+  PRIMARY KEY (`idRegion`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`comuna`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`comuna` (
+  `idcomuna` INT NOT NULL,
+  `Region_idRegion` INT NOT NULL,
+  PRIMARY KEY (`idcomuna`),
+  CONSTRAINT `fk_comuna_Region1`
+    FOREIGN KEY (`Region_idRegion`)
+    REFERENCES `PruebaOM`.`Region` (`idRegion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`direccion`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`direccion` (
+  `iddireccion` VARCHAR(45) NOT NULL,
+  `comuna_idcomuna` INT NOT NULL,
+  PRIMARY KEY (`iddireccion`),
+  CONSTRAINT `fk_direccion_comuna1`
+    FOREIGN KEY (`comuna_idcomuna`)
+    REFERENCES `PruebaOM`.`comuna` (`idcomuna`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`distribuidor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`distribuidor` (
+  `rut` CHAR(12) NOT NULL,
+  `nombre_empresa` VARCHAR(45) NOT NULL,
+  `ano_venta` INT NOT NULL,
+  `fono` INT NOT NULL,
+  `direccion_iddireccion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`rut`),
+  CONSTRAINT `fk_distribuidor_telefono1`
+    FOREIGN KEY (`fono`)
+    REFERENCES `PruebaOM`.`telefono` (`fono`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_distribuidor_direccion1`
+    FOREIGN KEY (`direccion_iddireccion`)
+    REFERENCES `PruebaOM`.`direccion` (`iddireccion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`correos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`correos` (
+  `id_correos` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_correos`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`cliente`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`cliente` (
+  `rut` CHAR(12) NOT NULL,
+  `nombre` VARCHAR(20) NOT NULL,
+  `apellidop` VARCHAR(20) NOT NULL,
+  `apellidom` VARCHAR(20) NOT NULL,
+  `fecha_nacimiento` VARCHAR(45) NOT NULL,
+  `telefono_fono` INT NOT NULL,
+  `correos_id_correos` VARCHAR(45) NOT NULL,
+  `direccion_iddireccion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`rut`),
+  CONSTRAINT `fk_cliente_telefono1`
+    FOREIGN KEY (`telefono_fono`)
+    REFERENCES `PruebaOM`.`telefono` (`fono`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_cliente_correos1`
+    FOREIGN KEY (`correos_id_correos`)
+    REFERENCES `PruebaOM`.`correos` (`id_correos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_cliente_direccion1`
+    FOREIGN KEY (`direccion_iddireccion`)
+    REFERENCES `PruebaOM`.`direccion` (`iddireccion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`trabajador`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`trabajador` (
+  `rut` CHAR(12) NOT NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  `apellidop` VARCHAR(45) NOT NULL,
+  `apellidom` VARCHAR(45) NOT NULL,
+  `fecha_contrato` VARCHAR(45) NOT NULL,
+  `telefono_fono` INT NOT NULL,
+  `correos_id_correos` VARCHAR(45) NOT NULL,
+  `direccion_iddireccion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`rut`),
+  CONSTRAINT `fk_trabajador_telefono1`
+    FOREIGN KEY (`telefono_fono`)
+    REFERENCES `PruebaOM`.`telefono` (`fono`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_trabajador_correos1`
+    FOREIGN KEY (`correos_id_correos`)
+    REFERENCES `PruebaOM`.`correos` (`id_correos`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_trabajador_direccion1`
+    FOREIGN KEY (`direccion_iddireccion`)
+    REFERENCES `PruebaOM`.`direccion` (`iddireccion`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`mpagos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`mpagos` (
+  `tipopago` INT NOT NULL,
+  `detalle` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`tipopago`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`factura`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`factura` (
+  `folio` INT NOT NULL,
+  `precio_neto` INT NOT NULL,
+  `precio_iva` INT NOT NULL,
+  `costo_iva` INT NOT NULL,
+  `fecha_compra` VARCHAR(45) NOT NULL,
+  `hora_compra` VARCHAR(45) NOT NULL,
+  `distribuidor_rut` CHAR(12) NOT NULL,
+  `mpagos_tipopago` INT NOT NULL,
+  PRIMARY KEY (`folio`),
+  CONSTRAINT `fk_factura_distribuidor1`
+    FOREIGN KEY (`distribuidor_rut`)
+    REFERENCES `PruebaOM`.`distribuidor` (`rut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_factura_mpagos1`
+    FOREIGN KEY (`mpagos_tipopago`)
+    REFERENCES `PruebaOM`.`mpagos` (`tipopago`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`boleta`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`boleta` (
+  `folio` INT NOT NULL,
+  `precio_neto` INT NOT NULL,
+  `precio_iva` INT NOT NULL,
+  `costo_iva` INT NOT NULL,
+  `fecha_venta` VARCHAR(45) NOT NULL,
+  `hora_venta` VARCHAR(45) NOT NULL,
+  `cliente_rut` CHAR(12) NOT NULL,
+  `mpagos_tipopago` INT NOT NULL,
+  `trabajador_rut` CHAR(12) NOT NULL,
+  PRIMARY KEY (`folio`),
+  CONSTRAINT `fk_boleta_cliente1`
+    FOREIGN KEY (`cliente_rut`)
+    REFERENCES `PruebaOM`.`cliente` (`rut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_boleta_mpagos1`
+    FOREIGN KEY (`mpagos_tipopago`)
+    REFERENCES `PruebaOM`.`mpagos` (`tipopago`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_boleta_trabajador1`
+    FOREIGN KEY (`trabajador_rut`)
+    REFERENCES `PruebaOM`.`trabajador` (`rut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`arriendo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`arriendo` (
+  `id_arriendo` INT NOT NULL,
+  `costo_total` INT NOT NULL,
+  `fecha_arriendo` VARCHAR(45) NOT NULL,
+  `fecha_devoapp` VARCHAR(45) NOT NULL,
+  `fecha_devoreal` VARCHAR(45) NOT NULL,
+  `dias_retraso` INT NOT NULL,
+  `multa` INT NOT NULL,
+  `costo` INT NOT NULL,
+  `cliente_rut` CHAR(12) NOT NULL,
+  `trabajador_rut` CHAR(12) NOT NULL,
+  `libro_id_libro` INT NOT NULL,
+  PRIMARY KEY (`id_arriendo`),
+  CONSTRAINT `fk_arriendo_cliente1`
+    FOREIGN KEY (`cliente_rut`)
+    REFERENCES `PruebaOM`.`cliente` (`rut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_arriendo_trabajador1`
+    FOREIGN KEY (`trabajador_rut`)
+    REFERENCES `PruebaOM`.`trabajador` (`rut`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_arriendo_libro1`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`autor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`autor` (
+  `idautor` INT NOT NULL,
+  `nombre` VARCHAR(45) NOT NULL,
+  `apellidom` VARCHAR(45) NOT NULL,
+  `apellidop` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idautor`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`categorias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`categorias` (
+  `tipo_categoria` INT NOT NULL,
+  `descripcion` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`tipo_categoria`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`idioma`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`idioma` (
+  `id_idioma` INT NOT NULL,
+  `detalle_idioma` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_idioma`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`libro_has_categorias`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`libro_has_categorias` (
+  `libro_id_libro` INT NOT NULL,
+  `categorias_tipo_categoria` INT NOT NULL,
+  PRIMARY KEY (`libro_id_libro`, `categorias_tipo_categoria`),
+  CONSTRAINT `fk_libro_has_categorias_libro`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_libro_has_categorias_categorias1`
+    FOREIGN KEY (`categorias_tipo_categoria`)
+    REFERENCES `PruebaOM`.`categorias` (`tipo_categoria`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`libro_has_idioma`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`libro_has_idioma` (
+  `libro_id_libro` INT NOT NULL,
+  `idioma_id_idioma` INT NOT NULL,
+  PRIMARY KEY (`libro_id_libro`, `idioma_id_idioma`),
+  CONSTRAINT `fk_libro_has_idioma_libro1`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_libro_has_idioma_idioma1`
+    FOREIGN KEY (`idioma_id_idioma`)
+    REFERENCES `PruebaOM`.`idioma` (`id_idioma`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`libro_has_autor`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`libro_has_autor` (
+  `libro_id_libro` INT NOT NULL,
+  `autor_idautor` INT NOT NULL,
+  PRIMARY KEY (`libro_id_libro`, `autor_idautor`),
+  CONSTRAINT `fk_libro_has_autor_libro1`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_libro_has_autor_autor1`
+    FOREIGN KEY (`autor_idautor`)
+    REFERENCES `PruebaOM`.`autor` (`idautor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`autor_has_libro`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`autor_has_libro` (
+  `autor_idautor` INT NOT NULL,
+  `libro_id_libro` INT NOT NULL,
+  PRIMARY KEY (`autor_idautor`, `libro_id_libro`),
+  CONSTRAINT `fk_autor_has_libro_autor1`
+    FOREIGN KEY (`autor_idautor`)
+    REFERENCES `PruebaOM`.`autor` (`idautor`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_autor_has_libro_libro1`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`boleta_has_libro`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`boleta_has_libro` (
+  `boleta_folio` INT NOT NULL,
+  `libro_id_libro` INT NOT NULL,
+  PRIMARY KEY (`boleta_folio`, `libro_id_libro`),
+  CONSTRAINT `fk_boleta_has_libro_boleta1`
+    FOREIGN KEY (`boleta_folio`)
+    REFERENCES `PruebaOM`.`boleta` (`folio`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_boleta_has_libro_libro1`
+    FOREIGN KEY (`libro_id_libro`)
+    REFERENCES `PruebaOM`.`libro` (`id_libro`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`Usuario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`Usuario` (
+  `idUsuario` INT NOT NULL,
+  `Pass` VARCHAR(45) NULL,
+  PRIMARY KEY (`idUsuario`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`Producto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`Producto` (
+  `NombreProducto` VARCHAR(40) NOT NULL,
+  `Cantidad` INT NOT NULL,
+  `Fecha` VARCHAR(45) NOT NULL,
+  `Precio` INT NOT NULL,
+  PRIMARY KEY (`NombreProducto`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `PruebaOM`.`Inventario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `PruebaOM`.`Inventario` (
+  `Producto` VARCHAR(40) NOT NULL,
+  `Cantidad` VARCHAR(45) NOT NULL,
+  `Fecha` VARCHAR(45) NOT NULL,
+  `Precio` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`Producto`),
+  CONSTRAINT `fk_Inventario_Producto1`
+    FOREIGN KEY (`Producto`)
+    REFERENCES `PruebaOM`.`Producto` (`NombreProducto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
